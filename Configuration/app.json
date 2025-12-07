@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "حال و هوا",
+    "slug": "weather-mood-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#DCBA31"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.weathermood.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#DCBA31"
+      },
+      "package": "com.weathermood.app",
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-location"
+    ],
+    "scheme": "weathermood",
+    "extra": {
+      "router": {
+        "origin": false
+      }
+    }
+  }
+}

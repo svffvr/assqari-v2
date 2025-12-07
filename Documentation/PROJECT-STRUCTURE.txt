@@ -1,0 +1,364 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    WEATHER MOOD APP - PROJECT STRUCTURE                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📦 weather-mood-app
+│
+├─ 📱 app/                                  [Expo Router - Pages]
+│  ├─ _layout.tsx                          Root Layout (Font Loading)
+│  ├─ index.tsx                            Home Screen → WeatherScreen
+│  └─ admin.tsx                            Admin Panel → AdminScreen
+│
+├─ 🎨 src/                                  [Source Code]
+│  │
+│  ├─ 🌤️ features/                          [Feature Modules]
+│  │  │
+│  │  ├─ weather/                          Weather Feature
+│  │  │  ├─ components/
+│  │  │  │  ├─ WeatherDisplay.tsx         Location, Date, Temp, Animation
+│  │  │  │  └─ SituationCard.tsx          Sentence, Music, Clothing
+│  │  │  ├─ hooks/
+│  │  │  │  ├─ useWeather.ts              Fetch weather from API
+│  │  │  │  └─ useSituation.ts            Match situation from DB
+│  │  │  ├─ utils/
+│  │  │  │  ├─ weatherMapper.ts           Categorize weather data
+│  │  │  │  └─ colorUtils.ts              Colors & animations
+│  │  │  └─ WeatherScreen.tsx             Main weather screen
+│  │  │
+│  │  └─ admin/                            Admin Feature
+│  │     ├─ components/
+│  │     │  ├─ SituationForm.tsx          Create/Edit situations
+│  │     │  ├─ MusicForm.tsx              Create/Edit music
+│  │     │  ├─ ClothingForm.tsx           Create/Edit clothing
+│  │     │  └─ AssignmentManager.tsx      Assign music/clothing
+│  │     ├─ hooks/
+│  │     │  └─ useAdmin.ts                CRUD operations
+│  │     └─ AdminScreen.tsx               Admin panel screen
+│  │
+│  └─ 🔧 shared/                           [Shared Resources]
+│     ├─ config/
+│     │  └─ env.ts                        API Keys (EDIT THIS!)
+│     ├─ services/
+│     │  ├─ supabaseService.ts            Database + SQL
+│     │  ├─ openWeatherService.ts         Weather API
+│     │  └─ shamsiDateService.ts          Persian Date
+│     ├─ types/
+│     │  └─ index.ts                      TypeScript Types
+│     └─ utils/
+│        └─ persianUtils.ts               Persian helpers
+│
+├─ 🖼️ assets/                              [Static Files]
+│  ├─ fonts/                              ⚠️ ADD YEKAN BAKH FONTS HERE
+│  │  ├─ YekanBakh-Thin.ttf
+│  │  ├─ YekanBakh-Light.ttf
+│  │  ├─ YekanBakh-Regular.ttf
+│  │  ├─ YekanBakh-SemiBold.ttf
+│  │  ├─ YekanBakh-Bold.ttf
+│  │  ├─ YekanBakh-ExtraBold.ttf
+│  │  └─ YekanBakh-Black.ttf
+│  │
+│  ├─ lottie/                             ⚠️ ADD LOTTIE ANIMATIONS HERE
+│  │  ├─ clearday.json
+│  │  ├─ clearnight.json
+│  │  ├─ cloudy.json
+│  │  ├─ cloudynight.json
+│  │  ├─ rainy.json
+│  │  ├─ snowy.json
+│  │  ├─ thunder.json
+│  │  └─ foggy.json
+│  │
+│  ├─ icon.png                            App icon (1024x1024)
+│  ├─ splash.png                          Splash screen
+│  ├─ adaptive-icon.png                   Android icon
+│  └─ favicon.png                         Web icon
+│
+├─ 📚 Documentation/
+│  ├─ README.md                           Main documentation
+│  ├─ QUICKSTART.md                       Quick start guide
+│  ├─ SETUP-GUIDE.md                      Complete setup
+│  ├─ API-DOCS.md                         API documentation
+│  ├─ DEPLOYMENT-CHECKLIST.md             Deploy checklist
+│  ├─ PROJECT-OVERVIEW.md                 Project overview
+│  ├─ DELIVERY-SUMMARY.md                 Files summary
+│  ├─ ASSETS-GUIDE.md                     Assets guide
+│  └─ PROJECT-STRUCTURE.txt               This file
+│
+├─ ⚙️ Configuration/
+│  ├─ package.json                        Dependencies
+│  ├─ tsconfig.json                       TypeScript config
+│  ├─ app.json                            Expo config
+│  ├─ babel.config.js                     Babel config
+│  └─ .gitignore                          Git ignore
+│
+└─ 🗄️ Database/
+   └─ database-sample-data.sql            Sample data SQL
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              DATA FLOW DIAGRAM                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────┐
+│    USER     │
+│  Opens App  │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────┐
+│  Request Location   │  ← expo-location
+│  Permission         │
+└──────┬──────────────┘
+       │
+       ▼
+┌─────────────────────┐
+│  Get Coordinates    │
+│  (lat, lon)         │
+└──────┬──────────────┘
+       │
+       ▼
+┌─────────────────────┐
+│  OpenWeather API    │  ← openWeatherService
+│  Call                │
+└──────┬──────────────┘
+       │
+       ▼
+┌─────────────────────┐
+│  Raw Weather Data   │  {temp: 25, weather: "Clear", ...}
+└──────┬──────────────┘
+       │
+       ▼
+┌─────────────────────┐
+│  weatherMapper      │  ← Categorize data
+│  Transform          │
+└──────┬──────────────┘
+       │
+       ▼
+┌─────────────────────┐
+│  Categorized Data   │  {weather: 'sunny', temp: 'hot', ...}
+└──────┬──────────────┘
+       │
+       ▼
+┌─────────────────────┐
+│  Supabase Query     │  ← Search matching situation
+│  Match Situation    │
+└──────┬──────────────┘
+       │
+       ▼
+┌─────────────────────┐
+│  Best Match         │  Score & Sort
+│  Selection          │
+└──────┬──────────────┘
+       │
+       ▼
+┌─────────────────────────────────────┐
+│           DISPLAY TO USER            │
+├──────────────────────────────────────┤
+│  🌍 Location: Tehran                 │
+│  📅 Date: جمعه - ۷ آذر              │
+│  🌡️ Temperature: ۲۵°                │
+│  🎨 Animation: Sunny                 │
+│  💬 Sentence: "امروز آفتابی است..."  │
+│  🎵 Music: Spotify playlist          │
+│  👕 Clothing: "لباس سبک بپوش"       │
+└─────────────────────────────────────┘
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                            DATABASE SCHEMA                                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────┐
+│     situations       │
+├──────────────────────┤
+│ id (UUID) PK         │
+│ weather (TEXT)       │  ← sunny, cloudy, rainy, snowy, stormy, foggy
+│ temperature (TEXT)   │  ← cold, mild, hot
+│ humidity (TEXT)      │  ← dry, normal, humid
+│ wind (TEXT)          │  ← calm, breezy, windy
+│ time_of_day (TEXT)   │  ← morning, noon, evening, night
+│ mood (TEXT)          │  ← happy, sad, energetic, calm, romantic
+│ city (TEXT)          │
+│ sentence_fa (TEXT)   │  ← Persian sentence
+│ created_at           │
+└──────┬───────────────┘
+       │
+       │ many-to-many
+       │
+       ├─────────────────────────┐
+       │                         │
+       ▼                         ▼
+┌──────────────────┐    ┌──────────────────┐
+│ situation_music  │    │situation_clothing│
+├──────────────────┤    ├──────────────────┤
+│ situation_id FK  │    │ situation_id FK  │
+│ music_id FK      │    │ clothing_id FK   │
+└────┬─────────────┘    └────┬─────────────┘
+     │                       │
+     ▼                       ▼
+┌──────────────────┐    ┌──────────────────┐
+│      music       │    │     clothing     │
+├──────────────────┤    ├──────────────────┤
+│ id (UUID) PK     │    │ id (UUID) PK     │
+│ title            │    │ description_fa   │
+│ artist           │    │ created_at       │
+│ spotify_link     │    └──────────────────┘
+│ cover_url        │
+│ created_at       │
+└──────────────────┘
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          COMPONENT HIERARCHY                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+WeatherScreen
+│
+├─ LinearGradient (Background with solid color)
+│  │
+│  └─ ScrollView
+│     │
+│     ├─ Header
+│     │  └─ Menu Button (→ Admin)
+│     │
+│     ├─ WeatherDisplay
+│     │  ├─ Location Icon + City Name
+│     │  ├─ Shamsi Date
+│     │  ├─ Temperature (160px)
+│     │  └─ Lottie Animation
+│     │
+│     └─ SituationCard
+│        ├─ Persian Sentence (last word highlighted)
+│        ├─ Info Text
+│        ├─ Glass Panel: Clothing
+│        │  ├─ Title + Icon
+│        │  └─ Description
+│        └─ Glass Panel: Music
+│           ├─ Title + Icon
+│           └─ Spotify Item
+│              ├─ Cover Image
+│              └─ Title + Artist
+
+AdminScreen
+│
+├─ Header (Back button + Title)
+│
+├─ Tabs (Situations | Music | Clothing)
+│
+├─ ScrollView
+│  └─ Card List
+│     ├─ Tags/Info
+│     └─ Action Buttons (Edit | Delete | Assign)
+│
+├─ FAB (+ Button)
+│
+└─ Modals
+   ├─ SituationForm
+   ├─ MusicForm
+   ├─ ClothingForm
+   └─ AssignmentManager
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              COLOR PALETTE                                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Weather Condition → Background Color → Text Color
+
+☀️  Sunny Day       #DCBA31 (Golden)        #000000 (Black)
+🌙  Night          #000000 (Black)         #ffffff (White)
+🌧️  Rainy          #123285 (Deep Blue)     #ffffff (White)
+☁️  Cloudy         #CDDADE (Light Gray)    #000000 (Black)
+❄️  Snowy          #91DBE4 (Light Blue)    #000000 (Black)
+⛈️  Stormy         #123285 (Deep Blue)     #ffffff (White)
+🌫️  Foggy          #CDDADE (Light Gray)    #000000 (Black)
+🔥  Hot            #C92700 (Red)           #ffffff (White)
+🌅  Sunrise/Sunset #BC5256 (Pink)          #ffffff (White)
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                            MATCHING ALGORITHM                                ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Score Calculation:
+─────────────────
+
+weather match      → +5 points
+temperature match  → +3 points
+time_of_day match  → +2 points
+humidity match     → +1 point
+wind match         → +1 point
+
+Example:
+────────
+Current Weather: {sunny, hot, noon, normal, calm}
+Situation A:     {sunny, hot,  noon, null,   null}  → Score: 5+3+2 = 10 ⭐
+Situation B:     {sunny, mild, null, normal, null}  → Score: 5+1 = 6
+Situation C:     {null,  hot,  noon, null,   null}  → Score: 3+2 = 5
+
+→ Best Match: Situation A
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          QUICK COMMANDS                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Development:
+────────────
+npm install              Install dependencies
+npm start                Start Expo development server
+npm run ios              Run on iOS simulator
+npm run android          Run on Android emulator
+npm run web              Run in web browser
+
+Clear Cache:
+────────────
+expo start -c            Start with cache cleared
+rm -rf node_modules      Remove node_modules
+npm install              Reinstall dependencies
+
+Build:
+──────
+eas build --platform ios        Build for iOS
+eas build --platform android    Build for Android
+eas build --platform all        Build for both
+
+Database:
+─────────
+Run SQL in Supabase SQL Editor:
+1. Create tables (from supabaseService.ts)
+2. Insert sample data (from database-sample-data.sql)
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              NOTES                                           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+⚠️  IMPORTANT:
+   • Add API keys in src/shared/config/env.ts
+   • Add Yekan Bakh fonts in assets/fonts/
+   • Add Lottie animations in assets/lottie/
+   • Run SQL to create database tables
+   • Test on real device for location features
+
+💡 TIPS:
+   • Use Expo Go app for quick testing
+   • Check console logs for debugging
+   • Read SETUP-GUIDE.md for detailed instructions
+   • Use QUICKSTART.md for fast setup
+
+📚 DOCUMENTATION:
+   • README.md - Main guide
+   • SETUP-GUIDE.md - Step by step setup
+   • API-DOCS.md - API reference
+   • ASSETS-GUIDE.md - How to get assets
+
+🎯 NEXT STEPS:
+   1. npm install
+   2. Add API keys
+   3. Add fonts & animations
+   4. Setup database
+   5. npm start
+   6. Test on device
+   7. Deploy!
+
+═══════════════════════════════════════════════════════════════════════════════
