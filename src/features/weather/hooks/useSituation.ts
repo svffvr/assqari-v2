@@ -16,33 +16,41 @@ export const useSituation = (weather: CategorizedWeather | null) => {
     try {
       setLoading(true);
 
-      // Build query with flexible matching
-      let query = supabase
+      // Build a single OR condition that matches all criteria
+      const conditions = [];
+      
+      // Each condition checks if the field matches OR is null
+      if (categorized.weather) {
+        conditions.push(`and(weather.eq.${categorized.weather})`);
+        conditions.push(`weather.is.null`);
+      }
+      if (categorized.temperature) {
+        conditions.push(`and(temperature.eq.${categorized.temperature})`);
+        conditions.push(`temperature.is.null`);
+      }
+      if (categorized.humidity) {
+        conditions.push(`and(humidity.eq.${categorized.humidity})`);
+        conditions.push(`humidity.is.null`);
+      }
+      if (categorized.wind) {
+        conditions.push(`and(wind.eq.${categorized.wind})`);
+        conditions.push(`wind.is.null`);
+      }
+      if (categorized.time_of_day) {
+        conditions.push(`and(time_of_day.eq.${categorized.time_of_day})`);
+        conditions.push(`time_of_day.is.null`);
+      }
+
+      // Single query with all filters
+      const { data, error } = await supabase
         .from('situations')
         .select(`
           *,
           music:situation_music(music(*)),
           clothing:situation_clothing(clothing(*))
-        `);
-
-      // Add filters - null means "matches any"
-      if (categorized.weather) {
-        query = query.or(`weather.eq.${categorized.weather},weather.is.null`);
-      }
-      if (categorized.temperature) {
-        query = query.or(`temperature.eq.${categorized.temperature},temperature.is.null`);
-      }
-      if (categorized.humidity) {
-        query = query.or(`humidity.eq.${categorized.humidity},humidity.is.null`);
-      }
-      if (categorized.wind) {
-        query = query.or(`wind.eq.${categorized.wind},wind.is.null`);
-      }
-      if (categorized.time_of_day) {
-        query = query.or(`time_of_day.eq.${categorized.time_of_day},time_of_day.is.null`);
-      }
-
-      const { data, error } = await query.limit(20);
+        `)
+        .or(conditions.join(','))
+        .limit(20);
 
       if (error) {
         console.error('Error fetching situation:', error);
@@ -55,14 +63,30 @@ export const useSituation = (weather: CategorizedWeather | null) => {
         // Score each situation based on matching criteria
         const scoredSituations = data.map((sit: any) => {
           let score = 0;
+          let matchDetails: string[] = [];
           
-          if (sit.weather === categorized.weather) score += 5;
-          if (sit.temperature === categorized.temperature) score += 3;
-          if (sit.time_of_day === categorized.time_of_day) score += 2;
-          if (sit.humidity === categorized.humidity) score += 1;
-          if (sit.wind === categorized.wind) score += 1;
+          if (sit.weather === categorized.weather) {
+            score += 5;
+            matchDetails.push('weather');
+          }
+          if (sit.temperature === categorized.temperature) {
+            score += 3;
+            matchDetails.push('temperature');
+          }
+          if (sit.time_of_day === categorized.time_of_day) {
+            score += 2;
+            matchDetails.push('time_of_day');
+          }
+          if (sit.humidity === categorized.humidity) {
+            score += 1;
+            matchDetails.push('humidity');
+          }
+          if (sit.wind === categorized.wind) {
+            score += 1;
+            matchDetails.push('wind');
+          }
           
-          return { ...sit, score };
+          return { ...sit, score, matchDetails };
         });
 
         // Sort by score
@@ -70,7 +94,7 @@ export const useSituation = (weather: CategorizedWeather | null) => {
         
         console.log('🏆 Scored Situations:');
         scoredSituations.forEach((s, i) => {
-          console.log(`  ${i + 1}. [Score: ${s.score}] ${s.sentence_fa}`);
+          console.log(`  ${i + 1}. [Score: ${s.score}] (${s.matchDetails.join(', ')}) ${s.sentence_fa}`);
         });
         
         // Get all situations with the highest score
@@ -97,7 +121,7 @@ export const useSituation = (weather: CategorizedWeather | null) => {
 
         setSituation(transformedSituation);
       } else {
-        // No match found - could set a default situation
+        console.log('❌ No matching situations found');
         setSituation(null);
       }
     } catch (err) {

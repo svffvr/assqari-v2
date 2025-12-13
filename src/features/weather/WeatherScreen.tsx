@@ -19,6 +19,7 @@ import { useSituation } from './hooks/useSituation';
 import { colorUtils } from './utils/colorUtils';
 import { WeatherDisplay } from './components/WeatherDisplay';
 import { SituationCard } from './components/SituationCard';
+import { useWidgetUpdate } from '../../shared/hooks/useWidgetUpdate';
 
 // Simple admin credentials (change these!)
 const ADMIN_USERNAME = 'admin';
@@ -99,6 +100,8 @@ export default function WeatherScreen() {
       alert('خطا در اشتراک‌گذاری');
     }
   };
+
+  useWidgetUpdate(weather, situation);
 
   if (weatherLoading) {
     return (

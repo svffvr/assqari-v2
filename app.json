@@ -2,5 +2,21 @@
   "plugins": [
     "expo-font",
     "expo-router"
-  ]
+  ],
+  "extra": {
+    "router": {},
+    "eas": {
+      "projectId": "729197ef-261a-4910-b7eb-918b67bb5bcb"
+    }
+  },
+  "expo": {
+    "android": {
+      "package": "com.svffvr.assqari"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "729197ef-261a-4910-b7eb-918b67bb5bcb"
+      }
+    }
+  }
 }
